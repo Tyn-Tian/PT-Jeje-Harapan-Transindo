@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import type { Shipment, Transporter } from '../types/shipment'
 import * as shipmentService from '../services/shipment-service'
+import { MockWebSocket } from '../services/mock-websocket'
+
+let wsInstance: MockWebSocket | null = null
 
 export const useShipmentStore = defineStore('shipment', {
   state: () => ({
@@ -9,7 +12,8 @@ export const useShipmentStore = defineStore('shipment', {
     transporters: [] as Transporter[],
     isLoading: false,
     errorMessage: null as string | null,
-    successMessage: null as string | null
+    successMessage: null as string | null,
+    isRealtimeConnected: false
   }),
 
   getters: {
@@ -22,7 +26,6 @@ export const useShipmentStore = defineStore('shipment', {
     async loadShipments() {
       this.isLoading = true
       try {
-        // Simulate async delay
         await new Promise(resolve => setTimeout(resolve, 500))
         this.shipments = shipmentService.fetchAllShipments()
       } catch (error) {
@@ -52,20 +55,51 @@ export const useShipmentStore = defineStore('shipment', {
         await new Promise(resolve => setTimeout(resolve, 500))
         const updated = shipmentService.assignTransporter(shipmentId, transporterId)
         
-        // Update local state
-        const index = this.shipments.findIndex(s => s.id === shipmentId)
-        if (index !== -1) {
-          this.shipments[index] = updated
-        }
-        if (this.selectedShipment?.id === shipmentId) {
-          this.selectedShipment = updated
-        }
-        
+        this.updateShipmentInState(updated)
         this.successMessage = 'Transporter berhasil ditugaskan'
       } catch (error: any) {
         this.errorMessage = error.message || 'Gagal menugaskan transporter'
       } finally {
         this.isLoading = false
+      }
+    },
+
+    startRealtimeUpdates() {
+      if (this.isRealtimeConnected || this.shipments.length === 0) return
+
+      wsInstance = new MockWebSocket()
+      wsInstance.onMessage((payload) => {
+        const shipment = this.shipments.find(s => s.id === payload.shipmentId)
+        if (shipment) {
+          const updated: Shipment = {
+            ...shipment,
+            status: payload.newStatus,
+            assignedTransporterId: payload.assignedTransporterId
+          }
+          this.updateShipmentInState(updated)
+        }
+      })
+
+      const ids = this.shipments.map(s => s.id)
+      wsInstance.connect(ids)
+      this.isRealtimeConnected = true
+    },
+
+    stopRealtimeUpdates() {
+      if (wsInstance) {
+        wsInstance.disconnect()
+        wsInstance = null
+      }
+      this.isRealtimeConnected = false
+    },
+
+    updateShipmentInState(updated: Shipment) {
+      const index = this.shipments.findIndex(s => s.id === updated.id)
+      if (index !== -1) {
+        this.shipments[index] = updated
+      }
+      if (this.selectedShipment?.id === updated.id) {
+        this.selectedShipment = updated
       }
     },
 
