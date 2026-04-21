@@ -3,12 +3,12 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-lg font-medium text-[#2C2C2A]">Daftar Shipment</h1>
-      <div class="flex items-center gap-2">
+      <div v-if="store.isRealtimeConnected" class="flex items-center gap-1.5 px-3 py-1 bg-white border border-black/10 rounded-full shadow-sm">
         <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#3B6D11] opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-[#3B6D11]"></span>
         </span>
-        <span class="text-[11px] font-medium uppercase tracking-wider text-[#5F5E5A]">Live Update</span>
+        <span class="text-[11px] font-medium uppercase tracking-wider text-[#5F5E5A]">Live</span>
       </div>
     </div>
 
@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useShipmentStore } from '../stores/shipment-store'
 
@@ -120,6 +120,11 @@ const isLoading = computed(() => store.isLoading)
 
 onMounted(async () => {
   await store.loadShipments()
+  store.startRealtimeUpdates()
+})
+
+onUnmounted(() => {
+  store.stopRealtimeUpdates()
 })
 
 const viewDetail = (id: string) => {
