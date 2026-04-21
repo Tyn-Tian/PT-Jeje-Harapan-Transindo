@@ -1,14 +1,14 @@
 <template>
-  <div class="px-4 py-8 max-w-7xl mx-auto min-h-screen bg-[#F1EFE8]">
+  <div class="px-4 py-8 max-w-7xl mx-auto min-h-screen bg-gray-50">
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-lg font-medium text-[#2C2C2A]">Daftar Shipment</h1>
+      <h1 class="text-lg font-medium text-gray-900">Daftar Shipment</h1>
       <div v-if="store.isRealtimeConnected" class="flex items-center gap-1.5 px-3 py-1 bg-white border border-black/10 rounded-full shadow-sm">
         <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#3B6D11] opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-[#3B6D11]"></span>
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-600 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-600"></span>
         </span>
-        <span class="text-[11px] font-medium uppercase tracking-wider text-[#5F5E5A]">Live</span>
+        <span class="text-xs text-gray-600">Live</span>
       </div>
     </div>
 
@@ -16,45 +16,33 @@
     <div class="hidden md:block bg-white rounded-xl border border-black/15 overflow-hidden shadow-sm">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="bg-white border-b border-black/15">
-            <th class="px-6 py-4 text-[11px] font-medium uppercase tracking-wider text-[#5F5E5A] w-12">No</th>
-            <th class="px-6 py-4 text-[11px] font-medium uppercase tracking-wider text-[#5F5E5A]">Shipment ID</th>
-            <th class="px-6 py-4 text-[11px] font-medium uppercase tracking-wider text-[#5F5E5A]">Rute</th>
-            <th class="px-6 py-4 text-[11px] font-medium uppercase tracking-wider text-[#5F5E5A]">Kendaraan</th>
-            <th class="px-6 py-4 text-[11px] font-medium uppercase tracking-wider text-[#5F5E5A]">Status</th>
-            <th class="px-6 py-4 text-[11px] font-medium uppercase tracking-wider text-[#5F5E5A] text-right">Aksi</th>
+          <tr class="bg-white border-b border-black/10">
+            <th class="px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-600 w-12 text-center">No</th>
+            <th class="px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-600">Shipment ID</th>
+            <th class="px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-600">Rute</th>
+            <th class="px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-600">Kendaraan</th>
+            <th class="px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-600">Status</th>
+            <th class="px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-600 text-right">Aksi</th>
           </tr>
         </thead>
         <tbody v-if="!isLoading && shipments.length > 0">
           <tr v-for="(shipment, index) in shipments" :key="shipment.id" 
-              class="border-b border-black/10 last:border-0 hover:bg-[#F1EFE8] transition-colors group">
-            <td class="px-6 py-4 text-sm text-[#888780]">{{ index + 1 }}</td>
-            <td class="px-6 py-4 font-mono text-xs text-[#5F5E5A]">{{ shipment.id }}</td>
-            <td class="px-6 py-4 text-sm text-[#2C2C2A]">
+              class="border-b border-black/5 last:border-0 hover:bg-gray-50 transition-colors">
+            <td class="px-4 py-3 text-sm text-gray-400 text-center">{{ index + 1 }}</td>
+            <td class="px-4 py-3 font-mono text-xs text-gray-600">{{ shipment.id }}</td>
+            <td class="px-4 py-3 text-sm text-gray-900">
               {{ shipment.origin }} 
-              <span class="text-[#888780] mx-1">→</span> 
+              <span class="text-gray-400 mx-1">→</span> 
               {{ shipment.destination }}
             </td>
-            <td class="px-6 py-4 text-sm text-[#5F5E5A]">{{ shipment.vehicleType }}</td>
-            <td class="px-6 py-4">
-              <span :class="[
-                'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
-                shipment.status === 'Assigned' 
-                  ? 'bg-[#EAF3DE] text-[#27500A] border-[#C3DDA0]' 
-                  : 'bg-[#FAEEDA] text-[#633806] border-[#F0D8B3]'
-              ]">
-                <span :class="[
-                  'h-1.5 w-1.5 rounded-full',
-                  shipment.status === 'Assigned' ? 'bg-[#3B6D11]' : 'bg-[#854F0B]'
-                ]"></span>
-                {{ shipment.status }}
-              </span>
+            <td class="px-4 py-3 text-sm text-gray-600">{{ shipment.vehicleType }}</td>
+            <td class="px-4 py-3">
+              <StatusBadge :status="shipment.status" />
             </td>
-            <td class="px-6 py-4 text-right">
-              <button @click="viewDetail(shipment.id)" 
-                      class="px-3 py-1.5 bg-white border border-black/15 rounded-lg text-xs font-medium text-[#2C2C2A] hover:bg-[#F1EFE8] hover:border-black/30 transition-all">
+            <td class="px-4 py-3 text-right">
+              <BaseButton size="sm" @click="viewDetail(shipment.id)">
                 Lihat Detail
-              </button>
+              </BaseButton>
             </td>
           </tr>
         </tbody>
@@ -62,47 +50,35 @@
     </div>
 
     <!-- Mobile Card List -->
-    <div class="md:hidden space-y-4">
+    <div class="md:hidden space-y-2">
       <div v-for="shipment in shipments" :key="shipment.id" 
-           class="bg-white p-5 rounded-xl border border-black/15 shadow-sm space-y-3">
+           class="bg-white p-4 rounded-xl border border-black/15 shadow-sm space-y-4">
         <div class="flex justify-between items-start">
-          <span class="font-mono text-xs text-[#5F5E5A]">{{ shipment.id }}</span>
-          <span :class="[
-            'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
-            shipment.status === 'Assigned' 
-              ? 'bg-[#EAF3DE] text-[#27500A] border-[#C3DDA0]' 
-              : 'bg-[#FAEEDA] text-[#633806] border-[#F0D8B3]'
-          ]">
-            <span :class="[
-              'h-1.5 w-1.5 rounded-full',
-              shipment.status === 'Assigned' ? 'bg-[#3B6D11]' : 'bg-[#854F0B]'
-            ]"></span>
-            {{ shipment.status }}
-          </span>
+          <span class="font-mono text-xs text-gray-600">{{ shipment.id }}</span>
+          <StatusBadge :status="shipment.status" />
         </div>
         <div>
-          <div class="text-sm font-medium text-[#2C2C2A]">
-            {{ shipment.origin }} <span class="text-[#888780] mx-1">→</span> {{ shipment.destination }}
+          <div class="text-sm font-medium text-gray-900">
+            {{ shipment.origin }} <span class="text-gray-400 mx-1">→</span> {{ shipment.destination }}
           </div>
-          <div class="text-xs text-[#5F5E5A] mt-1">{{ shipment.vehicleType }}</div>
+          <div class="text-xs text-gray-600 mt-0.5">{{ shipment.vehicleType }}</div>
         </div>
-        <button @click="viewDetail(shipment.id)" 
-                class="w-full py-2.5 bg-white border border-black/15 rounded-lg text-sm font-medium text-[#2C2C2A] hover:bg-[#F1EFE8] active:bg-[#E8E6DD] transition-all">
+        <BaseButton class="w-full" size="sm" @click="viewDetail(shipment.id)">
           Lihat Detail
-        </button>
+        </BaseButton>
       </div>
     </div>
 
     <!-- Loading Skeleton -->
-    <div v-if="isLoading" class="space-y-4">
-      <div v-for="i in 4" :key="i" class="h-16 bg-[#D3D1C7]/30 animate-pulse rounded-xl border border-black/5"></div>
+    <div v-if="isLoading" class="space-y-3">
+      <div v-for="i in 4" :key="i" class="h-16 bg-gray-100/50 animate-pulse rounded-xl border border-black/5"></div>
     </div>
 
     <!-- Empty State -->
     <div v-if="!isLoading && shipments.length === 0" 
          class="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-black/15">
       <span class="text-3xl mb-4">📦</span>
-      <p class="text-sm text-[#5F5E5A]">Tidak ada data shipment ditemukan</p>
+      <p class="text-sm text-gray-600">Tidak ada data shipment ditemukan</p>
     </div>
   </div>
 </template>
@@ -111,6 +87,8 @@
 import { onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useShipmentStore } from '../stores/shipment-store'
+import BaseButton from '../components/shared/BaseButton.vue'
+import StatusBadge from '../components/shared/StatusBadge.vue'
 
 const router = useRouter()
 const store = useShipmentStore()
@@ -133,15 +111,7 @@ const viewDetail = (id: string) => {
 </script>
 
 <style scoped>
-/* Ensure 0.5px border weight where possible */
 .border {
-  border-width: 1px;
-  border-color: rgba(0, 0, 0, 0.15);
-}
-
-@media (min-resolution: 2dppx) {
-  .border {
-    border-width: 0.5px;
-  }
+  border-width: 0.5px;
 }
 </style>
