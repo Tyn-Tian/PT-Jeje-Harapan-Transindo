@@ -6,8 +6,8 @@ Sistem manajemen pengiriman dan logistik berbasis Vue 3 dengan Layered Architect
 
 1.  **Clone repositori:**
     ```bash
-    git clone <repository-url>
-    cd pt-jeje-harapan-transindo
+    git clone https://github.com/Tyn-Tian/PT-Jeje-Harapan-Transindo.git
+    cd PT-Jeje-Harapan-Transindo
     ```
 
 2.  **Install dependensi:**
