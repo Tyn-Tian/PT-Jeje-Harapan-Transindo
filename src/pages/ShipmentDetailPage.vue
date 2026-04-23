@@ -46,7 +46,7 @@
       </div>
 
       <!-- Assignment Form -->
-      <div class="bg-white p-6 rounded-xl border border-black/15 shadow-sm space-y-4">
+      <div v-if="authStore.isAdmin" class="bg-white p-6 rounded-xl border border-black/15 shadow-sm space-y-4">
         <h2 class="text-sm font-medium text-gray-900">Assign transporter</h2>
         <div class="space-y-1.5">
           <label for="transporter" class="text-[11px] font-medium uppercase tracking-wider text-gray-600">Pilih transporter</label>
@@ -102,6 +102,7 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useShipmentStore } from '../stores/shipment-store'
+import { useAuthStore } from '../stores/auth-store'
 import BaseButton from '../components/shared/BaseButton.vue'
 import StatusBadge from '../components/shared/StatusBadge.vue'
 import NotificationToast from '../components/shared/NotificationToast.vue'
@@ -109,6 +110,7 @@ import NotificationToast from '../components/shared/NotificationToast.vue'
 const route = useRoute()
 const router = useRouter()
 const store = useShipmentStore()
+const authStore = useAuthStore()
 
 const selectedTransporterId = ref('')
 const validationError = ref('')

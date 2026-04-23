@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ShipmentDetailPage from '../ShipmentDetailPage.vue'
 import * as storeModule from '../../stores/shipment-store'
+import { useAuthStore } from '../../stores/auth-store'
 
 vi.mock('vue-router', () => ({
   useRoute: () => ({
@@ -16,6 +17,8 @@ vi.mock('vue-router', () => ({
 describe('ShipmentDetailPage', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    const authStore = useAuthStore()
+    authStore.currentSession = { userId: '1', role: 'Admin', displayName: 'Test Admin' }
   })
 
   it('shows validation error when assignment is submitted empty', async () => {

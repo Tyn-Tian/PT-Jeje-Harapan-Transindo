@@ -1,20 +1,24 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <nav class="bg-white shadow-sm p-4 mb-4">
-      <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <span class="text-xl font-bold text-gray-800">PT Jeje Harapan Transindo</span>
-        <div class="space-x-4">
-          <router-link to="/shipments" class="text-gray-600 hover:text-blue-600" active-class="text-blue-600 font-semibold">Shipments</router-link>
-        </div>
-      </div>
-    </nav>
-    <main class="max-w-7xl mx-auto">
+    <AppHeader v-if="showNavigation" />
+    <main :class="{ 'max-w-7xl mx-auto p-4 sm:p-6 lg:p-8': showNavigation }">
       <router-view></router-view>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useAuthStore } from './stores/auth-store'
+import AppHeader from './components/shared/AppHeader.vue'
+
+const route = useRoute()
+const authStore = useAuthStore()
+
+const showNavigation = computed(() => {
+  return authStore.isAuthenticated && route.name !== 'Login'
+})
 </script>
 
 <style>
