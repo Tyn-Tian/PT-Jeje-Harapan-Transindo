@@ -82,4 +82,51 @@ describe('Shipment Store', () => {
       store.stopRealtimeUpdates()
     })
   })
+
+  describe('Pagination and Search', () => {
+    it('updates search keyword and resets current page', () => {
+      const store = useShipmentStore()
+      store.currentPage = 5
+      store.setSearchKeyword('Jakarta')
+      
+      expect(store.searchKeyword).toBe('Jakarta')
+      expect(store.currentPage).toBe(1)
+    })
+
+    it('updates current page', () => {
+      const store = useShipmentStore()
+      store.setCurrentPage(3)
+      expect(store.currentPage).toBe(3)
+    })
+
+    it('returns filtered shipments based on keyword', () => {
+      const store = useShipmentStore()
+      store.shipments = [
+        { id: 'S-1', origin: 'Jakarta', destination: 'A', status: 'Not Assigned', vehicleType: 'T', assignedTransporterId: null },
+        { id: 'S-2', origin: 'Bandung', destination: 'B', status: 'Not Assigned', vehicleType: 'T', assignedTransporterId: null }
+      ]
+      
+      store.setSearchKeyword('Jakarta')
+      expect(store.filteredShipments).toHaveLength(1)
+      expect(store.filteredShipments[0].id).toBe('S-1')
+    })
+
+    it('returns paginated shipments', () => {
+      const store = useShipmentStore()
+      store.shipments = Array.from({ length: 15 }, (_, i) => ({ id: `S-${i+1}`, status: 'Not Assigned' } as any))
+      store.pageSize = 10
+      store.currentPage = 2
+      
+      expect(store.paginatedShipments).toHaveLength(5)
+      expect(store.paginatedShipments[0].id).toBe('S-11')
+    })
+
+    it('calculates total pages correctly', () => {
+      const store = useShipmentStore()
+      store.shipments = Array.from({ length: 25 }, () => ({ id: 'S-X' } as any))
+      store.pageSize = 10
+      
+      expect(store.totalPages).toBe(3)
+    })
+  })
 })
