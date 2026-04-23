@@ -3,6 +3,7 @@ import type { Shipment, Transporter } from '../types/shipment'
 import * as shipmentService from '../services/shipment-service'
 import * as paginationService from '../services/pagination-service'
 import { MockWebSocket } from '../services/mock-websocket'
+import { useNotificationStore } from './notification-store'
 
 let wsInstance: MockWebSocket | null = null
 
@@ -12,8 +13,6 @@ export const useShipmentStore = defineStore('shipment', {
     selectedShipment: null as Shipment | null,
     transporters: [] as Transporter[],
     isLoading: false,
-    errorMessage: null as string | null,
-    successMessage: null as string | null,
     isRealtimeConnected: false,
     searchKeyword: '',
     currentPage: 1,
@@ -50,7 +49,8 @@ export const useShipmentStore = defineStore('shipment', {
         await new Promise(resolve => setTimeout(resolve, 500))
         this.shipments = shipmentService.fetchAllShipments()
       } catch (error) {
-        this.errorMessage = 'Gagal mengambil data shipment'
+        const notificationStore = useNotificationStore()
+        notificationStore.push('Gagal mengambil data shipment', 'error')
       } finally {
         this.isLoading = false
       }
@@ -60,7 +60,8 @@ export const useShipmentStore = defineStore('shipment', {
       try {
         this.transporters = shipmentService.fetchAllTransporters()
       } catch (error) {
-        this.errorMessage = 'Gagal mengambil data transporter'
+        const notificationStore = useNotificationStore()
+        notificationStore.push('Gagal mengambil data transporter', 'error')
       }
     },
 
@@ -71,15 +72,15 @@ export const useShipmentStore = defineStore('shipment', {
 
     async assignTransporter(shipmentId: string, transporterId: string) {
       this.isLoading = true
-      this.clearMessages()
+      const notificationStore = useNotificationStore()
       try {
         await new Promise(resolve => setTimeout(resolve, 500))
         const updated = shipmentService.assignTransporter(shipmentId, transporterId)
         
         this.updateShipmentInState(updated)
-        this.successMessage = 'Transporter berhasil ditugaskan'
+        notificationStore.push('Transporter berhasil ditugaskan', 'success')
       } catch (error: any) {
-        this.errorMessage = error.message || 'Gagal menugaskan transporter'
+        notificationStore.push(error.message || 'Gagal menugaskan transporter', 'error')
       } finally {
         this.isLoading = false
       }
@@ -122,11 +123,6 @@ export const useShipmentStore = defineStore('shipment', {
       if (this.selectedShipment?.id === updated.id) {
         this.selectedShipment = updated
       }
-    },
-
-    clearMessages() {
-      this.errorMessage = null
-      this.successMessage = null
     },
 
     setSearchKeyword(keyword: string) {
