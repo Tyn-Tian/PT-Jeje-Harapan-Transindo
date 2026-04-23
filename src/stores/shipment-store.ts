@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Shipment, Transporter } from '../types/shipment'
 import * as shipmentService from '../services/shipment-service'
+import * as paginationService from '../services/pagination-service'
 import { MockWebSocket } from '../services/mock-websocket'
 
 let wsInstance: MockWebSocket | null = null
@@ -13,13 +14,33 @@ export const useShipmentStore = defineStore('shipment', {
     isLoading: false,
     errorMessage: null as string | null,
     successMessage: null as string | null,
-    isRealtimeConnected: false
+    isRealtimeConnected: false,
+    searchKeyword: '',
+    currentPage: 1,
+    pageSize: 10
   }),
 
   getters: {
     assignedShipments: (state) => state.shipments.filter(s => s.status === 'Assigned'),
     unassignedShipments: (state) => state.shipments.filter(s => s.status === 'Not Assigned'),
-    getTransporterById: (state) => (id: string) => state.transporters.find(t => t.id === id)
+    getTransporterById: (state) => (id: string) => state.transporters.find(t => t.id === id),
+    
+    filteredShipments: (state) => {
+      return paginationService.filterShipments(state.shipments, state.transporters, state.searchKeyword)
+    },
+    paginatedShipments(): Shipment[] {
+      return paginationService.paginateShipments(
+        this.filteredShipments,
+        this.currentPage,
+        this.pageSize
+      )
+    },
+    totalPages(): number {
+      return paginationService.getTotalPages(this.filteredShipments.length, this.pageSize)
+    },
+    pageNumbers(): number[] {
+      return paginationService.getPageNumbers(this.currentPage, this.totalPages)
+    }
   },
 
   actions: {
@@ -104,8 +125,17 @@ export const useShipmentStore = defineStore('shipment', {
     },
 
     clearMessages() {
-      this.successMessage = null
       this.errorMessage = null
+      this.successMessage = null
+    },
+
+    setSearchKeyword(keyword: string) {
+      this.searchKeyword = keyword
+      this.currentPage = 1
+    },
+
+    setCurrentPage(page: number) {
+      this.currentPage = page
     }
   }
 })
