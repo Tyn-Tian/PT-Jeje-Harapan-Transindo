@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth-store'
+import AppInput from '../components/shared/AppInput.vue'
 import BaseButton from '../components/shared/BaseButton.vue'
 
 const router = useRouter()
@@ -59,41 +60,32 @@ const togglePassword = () => {
 
         <form @submit.prevent="handleLogin" class="space-y-5">
           <!-- Username -->
-          <div>
-            <label for="username" class="block text-sm font-medium text-gray-700 mb-1.5">Username</label>
-            <input 
-              id="username"
-              v-model="username"
-              type="text" 
-              class="w-full px-3 py-2 text-sm border border-black/20 rounded-lg outline-none transition-all focus:ring-1 focus:ring-black/30"
-              :class="{ 'border-red-500': errors.username }"
-              placeholder="Masukkan username"
-            />
-            <p v-if="errors.username" class="text-xs text-red-700 mt-1">{{ errors.username }}</p>
-          </div>
+          <AppInput 
+            id="username"
+            v-model="username"
+            label="Username"
+            placeholder="Masukkan username"
+            :error="errors.username"
+          />
 
           <!-- Password -->
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
-            <div class="relative">
-              <input 
-                id="password"
-                v-model="password"
-                :type="showPassword ? 'text' : 'password'" 
-                class="w-full px-3 py-2 text-sm border border-black/20 rounded-lg outline-none transition-all focus:ring-1 focus:ring-black/30 pr-10"
-                :class="{ 'border-red-500': errors.password }"
-                placeholder="Masukkan password"
-              />
-              <button 
-                type="button"
-                @click="togglePassword"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-              >
-                <span v-if="showPassword">🙈</span>
-                <span v-else>👁️</span>
-              </button>
-            </div>
-            <p v-if="errors.password" class="text-xs text-red-700 mt-1">{{ errors.password }}</p>
+          <div class="relative">
+            <AppInput 
+              id="password"
+              v-model="password"
+              label="Password"
+              placeholder="Masukkan password"
+              :type="showPassword ? 'text' : 'password'"
+              :error="errors.password"
+            />
+            <button 
+              type="button"
+              @click="togglePassword"
+              class="absolute right-3 top-[34px] text-gray-400 hover:text-gray-600 focus:outline-none"
+            >
+              <span v-if="showPassword">🙈</span>
+              <span v-else>👁️</span>
+            </button>
           </div>
 
           <!-- Store Error Message -->

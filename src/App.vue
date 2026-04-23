@@ -4,6 +4,7 @@
     <main :class="{ 'max-w-7xl mx-auto p-4 sm:p-6 lg:p-8': showNavigation }">
       <router-view></router-view>
     </main>
+    <GlobalNotification />
   </div>
 </template>
 
@@ -12,6 +13,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from './stores/auth-store'
 import AppHeader from './components/shared/AppHeader.vue'
+import GlobalNotification from './components/GlobalNotification.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()

@@ -49,26 +49,14 @@
       <div v-if="authStore.isAdmin" class="bg-white p-6 rounded-xl border border-black/15 shadow-sm space-y-4">
         <h2 class="text-sm font-medium text-gray-900">Assign transporter</h2>
         <div class="space-y-1.5">
-          <label for="transporter" class="text-[11px] font-medium uppercase tracking-wider text-gray-600">Pilih transporter</label>
-          <div class="relative">
-            <select 
-              id="transporter"
-              v-model="selectedTransporterId"
-              class="w-full bg-gray-50 border border-black/15 rounded-lg px-4 py-2.5 text-sm text-gray-900 appearance-none focus:outline-none focus:border-black/30 transition-all cursor-pointer"
-              :disabled="isLoading"
-            >
-              <option value="" disabled>Pilih transporter...</option>
-              <option v-for="t in transporters" :key="t.id" :value="t.id">
-                {{ t.name }}
-              </option>
-            </select>
-            <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400">
-              <span class="text-[10px]">▼</span>
-            </div>
-          </div>
-          <p v-if="validationError" class="text-xs text-red-600 mt-1 flex items-center gap-1">
-            <span class="text-[14px]">⚠️</span> {{ validationError }}
-          </p>
+          <AppSelectDropdown 
+            v-model="selectedTransporterId"
+            label="Pilih transporter"
+            placeholder="Pilih transporter..."
+            :options="transporterOptions"
+            :disabled="isLoading"
+            :error="validationError"
+          />
         </div>
         
         <BaseButton 
@@ -81,52 +69,47 @@
         </BaseButton>
       </div>
     </div>
-
-    <!-- Notifications -->
-    <NotificationToast 
-      :visible="!!store.successMessage"
-      :message="store.successMessage || ''"
-      type="success"
-      @close="store.clearMessages"
-    />
-    <NotificationToast 
-      :visible="!!store.errorMessage"
-      :message="store.errorMessage || ''"
-      type="error"
-      @close="store.clearMessages"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useShipmentStore } from '../stores/shipment-store'
+import { useShipment } from '../composables/useShipment'
 import { useAuthStore } from '../stores/auth-store'
+import AppSelectDropdown, { type SelectOption } from '../components/shared/AppSelectDropdown.vue'
 import BaseButton from '../components/shared/BaseButton.vue'
 import StatusBadge from '../components/shared/StatusBadge.vue'
-import NotificationToast from '../components/shared/NotificationToast.vue'
 
 const route = useRoute()
 const router = useRouter()
-const store = useShipmentStore()
 const authStore = useAuthStore()
+const {
+  selectedShipment: shipment,
+  transporters,
+  isLoading,
+  selectShipment,
+  loadTransporters,
+  assignTransporter,
+  getTransporterById
+} = useShipment()
 
 const selectedTransporterId = ref('')
 const validationError = ref('')
 
-const shipment = computed(() => store.selectedShipment)
-const transporters = computed(() => store.transporters)
-const isLoading = computed(() => store.isLoading)
+const transporterOptions = computed<SelectOption[]>(() => 
+  transporters.value.map(t => ({ value: t.id, label: t.name }))
+)
+
 const assignedTransporter = computed(() => {
   if (!shipment.value?.assignedTransporterId) return null
-  return store.getTransporterById(shipment.value.assignedTransporterId)
+  return getTransporterById(shipment.value.assignedTransporterId)
 })
 
 onMounted(async () => {
   const id = route.params.id as string
-  store.selectShipment(id)
-  await store.loadTransporters()
+  selectShipment(id)
+  await loadTransporters()
   
   if (!shipment.value) {
     router.push('/shipments')
@@ -140,6 +123,7 @@ const getInitials = (name: string) => {
     .join('')
     .toUpperCase()
     .substring(0, 2)
+    .substring(0, 2)
 }
 
 const handleAssign = async () => {
@@ -149,7 +133,7 @@ const handleAssign = async () => {
   }
   
   validationError.value = ''
-  await store.assignTransporter(shipment.value!.id, selectedTransporterId.value)
+  await assignTransporter(shipment.value!.id, selectedTransporterId.value)
 }
 
 const goBack = () => {
