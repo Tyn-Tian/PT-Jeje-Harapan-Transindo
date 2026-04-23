@@ -1,4 +1,5 @@
 import type { Shipment, Transporter } from '../types/shipment'
+import type { User } from '../types/auth'
 
 export const mockShipments: Shipment[] = [
   {
@@ -56,4 +57,9 @@ export const mockTransporters: Transporter[] = [
   { id: 'T-002', name: 'Andi Wijaya', phone: '082123456789' },
   { id: 'T-003', name: 'Siti Aminah', phone: '083123456789' },
   { id: 'T-004', name: 'Eko Prasetyo', phone: '085123456789' }
+]
+
+export const mockUsers: User[] = [
+  { id: 'USR-001', username: 'admin', password: 'admin123', role: 'Admin', displayName: 'Administrator' },
+  { id: 'USR-002', username: 'viewer', password: 'viewer123', role: 'Viewer', displayName: 'Viewer User' },
 ]
